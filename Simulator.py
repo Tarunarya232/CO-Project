@@ -1,4 +1,4 @@
-[10:40 AM, 8/7/2022] Pourav: import sys
+import sys
 from math import floor
 
 v = sys.stdin.read().split("\n")
