@@ -7,12 +7,16 @@ halt=False
 
 v = sys.stdin.read().split("\n")
 v.pop(-1)
+# print(v)
+
 lfile=v
+# print(lfile)
 
 while ('' in lfile):
     lfile.remove([''])
 
 instruction=lfile
+# print(instruction)
 
 
 for i in range(256):
@@ -21,6 +25,7 @@ for i in range(256):
 for i in range(len(instruction)):
     memory[i]=instruction[i]
 
+# print(memory)
 
 def underflow(value):
     if (value<0):
@@ -112,6 +117,14 @@ def mov_imm(instruction):
     global program_counter
     program_counter +=1
     reg_dict["111"] = 0
+# def mov_reg(instruction):
+#     global reg_dict
+#     reg_temp = instruction[10:13]
+#     r_1 = instruction[13:16]
+#     reg_dict[reg_temp] = reg_dict[r_1]
+#     global program_counter
+#     program_counter +=1
+#     reg_dict["111"] = 0
 
 def mov_reg(instruction):
     global reg_dict
@@ -201,7 +214,7 @@ def jump_if_greater_than(instruction):
     global program_counter
     global reg_dict
     # print(instruction)
-    print(reg_dict["111"])
+    # print(reg_dict["111"])
     if(reg_dict["111"]==2):
         memory_address=instruction[8:]
         program_counter=int(memory_address,2)
@@ -274,7 +287,7 @@ k=0
 l_st=[]
 while(halt==False):
     str_=""
-    print(program_counter)
+    # print(program_counter)
     curr_ins=memory[(program_counter)]
     str_+=convert(program_counter,8)+" "
     call=curr_ins[0:5] 
