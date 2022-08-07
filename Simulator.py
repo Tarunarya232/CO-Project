@@ -1,34 +1,4 @@
 import sys
-from math import floor
-
-v = sys.stdin.read().split("\n")
-v.pop(-1)
-# print(v)
-l = []
-for i in v:
-    m = i.split(' ')
-    l.append(m)
-lfile=l
-# print(lfile)
-
-u = 0
-# a=open("file.txt",'r')
-u = 0
-# a=open("file.txt",'r')
-# lfile = [['var', 'x'], ['mov', 'R1', '$4'], ['mov', 'R2', '$4'], ['cmp', 'R1', 'R2'], ['mov', 'FLAGS', 'R3'], ['mov', 'R4', '$1'], ['cmp', 'R3', 'R4'], ['jgt', 'label'], ['label:', 'hlt']]
-# # print(lfile)
-lout = []
-
-
-while ([''] in lfile):
-    lfile.remove([''])
-
-lf = []
-reg_addr = {"R0": "000", "R1": "001", "R2": "010", "R3": "011", "R4": "100", "R5": "101", "R6": "110", "FLAGS": "111"}
-dicInstruction = {"add": "10000", "sub": "10001", "mul": "10110", "xor": "11010", "or": "11011", "and": "11100",
-                  "div": "1011…
-[10:40 AM, 8/7/2022] Pourav: Q3
-[10:40 AM, 8/7/2022] Pourav: import sys
 reg_dict = {"000":0,"001":0,"010":0, "011":0,"100":0,"101":0,"110":0,"111":0}
 program_counter = 0
 memory = []
@@ -37,16 +7,12 @@ halt=False
 
 v = sys.stdin.read().split("\n")
 v.pop(-1)
-# print(v)
-
 lfile=v
-# print(lfile)
 
 while ('' in lfile):
     lfile.remove([''])
 
 instruction=lfile
-# print(instruction)
 
 
 for i in range(256):
@@ -55,7 +21,6 @@ for i in range(256):
 for i in range(len(instruction)):
     memory[i]=instruction[i]
 
-# print(memory)
 
 def underflow(value):
     if (value<0):
@@ -147,14 +112,6 @@ def mov_imm(instruction):
     global program_counter
     program_counter +=1
     reg_dict["111"] = 0
-# def mov_reg(instruction):
-#     global reg_dict
-#     reg_temp = instruction[10:13]
-#     r_1 = instruction[13:16]
-#     reg_dict[reg_temp] = reg_dict[r_1]
-#     global program_counter
-#     program_counter +=1
-#     reg_dict["111"] = 0
 
 def mov_reg(instruction):
     global reg_dict
