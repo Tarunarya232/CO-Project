@@ -1,4 +1,34 @@
-import sys
+[10:40 AM, 8/7/2022] Pourav: import sys
+from math import floor
+
+v = sys.stdin.read().split("\n")
+v.pop(-1)
+# print(v)
+l = []
+for i in v:
+    m = i.split(' ')
+    l.append(m)
+lfile=l
+# print(lfile)
+
+u = 0
+# a=open("file.txt",'r')
+u = 0
+# a=open("file.txt",'r')
+# lfile = [['var', 'x'], ['mov', 'R1', '$4'], ['mov', 'R2', '$4'], ['cmp', 'R1', 'R2'], ['mov', 'FLAGS', 'R3'], ['mov', 'R4', '$1'], ['cmp', 'R3', 'R4'], ['jgt', 'label'], ['label:', 'hlt']]
+# # print(lfile)
+lout = []
+
+
+while ([''] in lfile):
+    lfile.remove([''])
+
+lf = []
+reg_addr = {"R0": "000", "R1": "001", "R2": "010", "R3": "011", "R4": "100", "R5": "101", "R6": "110", "FLAGS": "111"}
+dicInstruction = {"add": "10000", "sub": "10001", "mul": "10110", "xor": "11010", "or": "11011", "and": "11100",
+                  "div": "1011…
+[10:40 AM, 8/7/2022] Pourav: Q3
+[10:40 AM, 8/7/2022] Pourav: import sys
 reg_dict = {"000":0,"001":0,"010":0, "011":0,"100":0,"101":0,"110":0,"111":0}
 program_counter = 0
 memory = []
@@ -44,7 +74,7 @@ def add(instruction):
     reg2 = instruction[10:13]
     reg3 = instruction[13:16]
     
-    ans = reg_dict[reg2] + reg_dict[reg1]
+    ans = int(reg_dict[reg2]) + int(reg_dict[reg1])
     if (overflow(ans)==True):
         reg_dict["111"]=8
     else:
@@ -117,14 +147,23 @@ def mov_imm(instruction):
     global program_counter
     program_counter +=1
     reg_dict["111"] = 0
+# def mov_reg(instruction):
+#     global reg_dict
+#     reg_temp = instruction[10:13]
+#     r_1 = instruction[13:16]
+#     reg_dict[reg_temp] = reg_dict[r_1]
+#     global program_counter
+#     program_counter +=1
+#     reg_dict["111"] = 0
+
 def mov_reg(instruction):
     global reg_dict
     reg_temp = instruction[10:13]
-    r_1 = instruction[13:16]
-    reg_dict[reg_temp] = reg_dict[r_1]
+    r_1 = instruction[13::]
+    reg_dict[r_1] = reg_dict[reg_temp]
     global program_counter
     program_counter +=1
-    reg_dict["111"] = 0
+    reg_dict["111"] = 0    
 
 
 def div(instruction):
@@ -188,7 +227,7 @@ def unconditional_jump(instruction):
     global program_counter
     global reg_dict
     memory_address=instruction[8:]
-    program_counter=memory_address
+    program_counter=int(memory_address,2)
     reg_dict["111"]=0  
 
 def jump_if_less_than(instruction):
@@ -196,7 +235,7 @@ def jump_if_less_than(instruction):
     global reg_dict
     if(reg_dict["111"]==4):
         memory_address=instruction[8:]
-        program_counter=memory_address
+        program_counter=int(memory_address,2)
     else:
         program_counter+=1
     reg_dict["111"]=0
@@ -204,9 +243,13 @@ def jump_if_less_than(instruction):
 def jump_if_greater_than(instruction):
     global program_counter
     global reg_dict
+    # print(instruction)
+    print(reg_dict["111"])
     if(reg_dict["111"]==2):
         memory_address=instruction[8:]
-        program_counter=memory_address
+        program_counter=int(memory_address,2)
+        # print(program_counter)
+
     else :
         program_counter+=1    
     reg_dict["111"]=0
@@ -216,29 +259,35 @@ def jump_if_equal(instruction):
     global reg_dict
     if(reg_dict["111"]==1):
         memory_address=instruction[8:]
-        program_counter=memory_address  
+        program_counter=int(memory_address,2)
     else:
         program_counter+=1
     reg_dict["111"]=0
 
 def load(instruction):    
-    reg=instruction[5:8]
-    memory_address=instruction[8:]
-    reg_dict[reg]=int(memory[memory_address],2)
+    reg=(instruction[5:8])
+    memory_address=int(instruction[8:],2)
+    # print(reg)
+    # print(memory_address)
+    reg_dict[reg]=(memory[memory_address])
     global program_counter
     program_counter+=1
     reg_dict["111"]=0
 
 def store(instruction):
     global reg_dict
+    global k
+    global lfile
     reg=instruction[5:8]
     memory_address=instruction[8:]
     val=convert(reg_dict[reg],16)
-    memory[int(memory_address)]=(val)
+    memory[int(len(lfile)+k)]=(val)
     global program_counter
     program_counter+=1
     reg_dict["111"]=0
     halt = False 
+    k+=1
+    # memory[len(lfile)+k]=("0000000000000"+reg)
 def halt_f(instruction):
     global reg_dict
     reg_dict["111"]=0 
@@ -249,7 +298,7 @@ def halt_f(instruction):
 def to_string(n,base):
    conver_tString = "0123456789ABCDEF"
    if (int(n) < int(base)):
-      return conver_tString[n]
+      return conver_tString[int(n)]
    else:
       return to_string(int(n)//int(base),base) + conver_tString[int(n) % int(base)]
 def convert(n,digits):
@@ -264,9 +313,12 @@ def convert(n,digits):
 # 
 
 lst=[]
+k=0
+l_st=[]
 while(halt==False):
     str_=""
-    curr_ins=memory[program_counter]
+    print(program_counter)
+    curr_ins=memory[(program_counter)]
     str_+=convert(program_counter,8)+" "
     call=curr_ins[0:5] 
     if(call=="10000"):
