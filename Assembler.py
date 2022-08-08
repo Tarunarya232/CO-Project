@@ -1,4 +1,5 @@
 import sys
+from math import floor
 
 v = sys.stdin.read().split("\n")
 v.pop(-1)
@@ -24,10 +25,9 @@ while ([''] in lfile):
 
 lf = []
 reg_addr = {"R0": "000", "R1": "001", "R2": "010", "R3": "011", "R4": "100", "R5": "101", "R6": "110", "FLAGS": "111"}
-# dicInstruction = {"add": "10000", "sub": "10001", "mul": "10110", "xor": "11010", "or": "11011", "and": "11100",
-#                   "div": "10111", "not": "11101", "cmp": "11110", "hlt": "01010"}
 dicInstruction = {"add": "10000", "sub": "10001", "mul": "10110", "xor": "11010", "or": "11011", "and": "11100",
-                  "div": "10111", "not": "11101","rs":"11000","ls":"11001" ,"cmp": "11110", "hlt": "01010"}
+                  "div": "10111", "not": "11101", "cmp": "11110", "hlt": "01010","rs":"11000","ls":"11001"}
+
 Global_Error = []
 
 def funcA(lst, j):
@@ -50,6 +50,25 @@ def funcA(lst, j):
         s = ("").join(l)
         lout.append(s)
         # print(s)
+    elif(lst[0]=="addf"):
+      # l.append("10000")
+      l.append("00000")
+      l.append("00")
+      for i in reg_addr:
+         if (i == lst[1]):
+            l.append(reg_addr.get(i))
+            break
+      for i in reg_addr:
+         if (i == lst[2]):
+            l.append(reg_addr.get(i))
+            break
+      for i in reg_addr:
+         if (i == lst[3]):
+            l.append(reg_addr.get(i))
+            break
+      s = ("").join(l)
+      lout.append(s)
+      # print(s)
     elif (lst[0] == "mul"):
         l.append("10110")
         l.append("00")
@@ -86,6 +105,24 @@ def funcA(lst, j):
         s = ("").join(l)
         lout.append(s)
         # print(s)
+    elif (lst[0] == "subf"):
+      l.append("00001")
+      l.append("00")
+      for i in reg_addr:
+         if (i == lst[1]):
+               l.append(reg_addr.get(i))
+               break
+      for i in reg_addr:
+         if (i == lst[2]):
+               l.append(reg_addr.get(i))
+               break
+      for i in reg_addr:
+         if (i == lst[3]):
+               l.append(reg_addr.get(i))
+               break
+      s = ("").join(l)
+      lout.append(s)
+      # print(s)
     elif (lst[0] == "xor"):
         l.append("11010")
         l.append("00")
@@ -205,8 +242,8 @@ def findLabel(main_lst):  # This function will return a dictionary which will re
 def error(lst, op):  # Function to check Errors and returns a dictionary
     try:
 
-        lstA = ["add", "mul", "sub", "xor", "or", "and"]
-        lstB = ["mov", "rs", "ls"]
+        lstA = ["add", "mul", "sub", "xor", "or", "and","addf","subf"]
+        lstB = ["mov", "rs", "ls","movf"]
         lstC = ["not", "cmp", "mov", "div"]
         lstD = ["ld", "st"]
         lstE = ["jmp", "jlt", "jgt", "je"]
@@ -316,9 +353,9 @@ def error(lst, op):  # Function to check Errors and returns a dictionary
                     print("Invalid Syntax at line ", i + 1)
                     Global_Error.append(1)
                     return
-            if (hltpresentornot(lst) == 0):
-                print("Halt Missing")
-                return
+            # if (hltpresentornot(lst) == 0):
+            #     print("Halt Missing")
+            #     return
             if (lst[i][0] not in lstres):
                 if (lst[i][0] == "var"):
                     if (len(lst[i]) == 2):
@@ -418,6 +455,60 @@ for i in var_dict:
     var_dict[i] = var_l[a]
     a = a + 1
 
+def floating_point(n):
+    number=n
+    whole, dec = str(number).split(".")
+    whole = int(whole)
+    dec = int (dec)
+    dec=dec/10
+    res = bin(whole).lstrip("0b") + "."
+    res_string=str(res)
+
+    bin_string=""
+    while dec != 1:
+        dec=dec*2
+        floor_num=floor(dec)
+        floor_string=str(floor_num)
+        bin_string=bin_string+floor_string
+    final_number=res_string+bin_string
+        
+
+    split_number=final_number.split(".")
+    split_number1=split_number[0]
+    count=1
+    for i in split_number1:
+        if i=="1":
+            break
+        count=count+1
+    count=len(split_number1)-count
+
+    exp_count=count+3
+    bin_exp_count=bin(exp_count).lstrip("0b")
+    bin_exp_countStr=str(bin_exp_count)
+    exp=""
+    if len(str(bin_exp_countStr))<3:
+        count1=3-len(bin_exp_countStr)
+        for i in range(count1):
+            exp="0"+exp
+        bin_exp_countStr=exp+str(bin_exp_countStr)
+
+    count_check=1
+    counter=0
+    mantissa=""
+    for i in final_number:
+        if (i=="1" and count_check==1):
+            count_check=2
+        elif(count_check==2 and i == "."):
+            pass
+        elif(count_check==2 and counter < 5):
+            mantissa=mantissa+i
+            counter=counter+1
+    if (len(mantissa)<5):
+        for i in range(5-len(mantissa)):
+            mantissa=mantissa+"0"
+
+    required_number=bin_exp_countStr+mantissa
+    return required_number
 
 def funcD(list, i):
     lstc = []
@@ -444,41 +535,56 @@ def funcD(list, i):
 
 
 def funcB(list, i):
+    check_imm=0
     lstb = []
     if (list[0] == "mov"):  # for opcode
         lstb.append("10010")
+    elif(list[0]=="movf"):
+        lstb.append("00010")
+        check_imm=1
     elif (list[0] == "ls"):
         lstb.append("11001")
+    elif (list[0]=="rs"):
+        lstb.append("11000")
 
     t_reg = reg_addr.get(list[1])  # for reg adress
     lstb.append(t_reg)
-
-    t_str = list[2]  # for immidiate value
-    t_str1 = t_str[1:]
-    temp_int = int(t_str1)
-    temp_bin = (bin(temp_int)[2:])
-    temp_str = str(temp_bin)
-    temp_len = len(temp_str)
-    temp_size = 8 - temp_len
-    for i in range(temp_size):
-        lstb.append("0")
-    lstb.append(temp_str)
-    ans = ("").join(lstb)
-    lout.append(ans)
-    # print(ans)
+    if(check_imm==1):
+      t_str = list[2]  # for immidiate value
+      vg=float(t_str)
+      rr=floating_point(vg)
+      kk=str(rr)
+      lstb.append(kk)
+      ans = ("").join(lstb)
+      lout.append(ans)
+    else:
+      t_str = list[2]  # for immidiate value
+      t_str1 = t_str[1:]
+      temp_int = int(t_str1)
+      temp_bin = (bin(temp_int)[2:])
+      temp_str = str(temp_bin)
+      temp_len = len(temp_str)
+      temp_size = 8 - temp_len
+      for i in range(temp_size):
+         lstb.append("0")
+      lstb.append(temp_str)
+      ans = ("").join(lstb)
+      lout.append(ans)
+      # print(ans)
 
 
 def funcC(lst, i):
     if (lst[0] == "mov" and isRegister(lst[1]) and isRegister(lst[2])):
-        opc = dicInstruction["mov"][0] + "00000" + reg_addr[lst[1]] + reg_addr[lst[2]]
+        opc = "10011" + "00000" + reg_addr[lst[1]] + reg_addr[lst[2]]
         lout.append(opc)
+    # elif(lst[1]=="FLAG" or )
         # print(opc)
     elif (isRegister(lst[1]) and isRegister(lst[2])):
         opc1 = dicInstruction[lst[0]] + "00000" + reg_addr[lst[1]] + reg_addr[lst[2]]
         lout.append(opc1)
         # print(opc1)
-    else:
-        print("Registers not correctly implemented")
+    # else:
+    #     print("Registers not correctly implemented")
 
 
 label_dict = {}
@@ -496,7 +602,6 @@ for i in lfile:
     else:
         count_of_label = count_of_label + 1
 
-
 def funcE(list, i):
     lste = []
     if (list[0] == "jmp"):
@@ -511,7 +616,7 @@ def funcE(list, i):
     lste.append("000")
     temp = list[1]
     temp_1 = label_dict.get(temp)
-    temp_bin = (bin(temp_1)[2:])
+    temp_bin = int(bin(temp_1)[2:])
     temp_str = str(temp_bin)
     temp_len = len(temp_str)
     temp_size = 8 - temp_len
@@ -536,10 +641,10 @@ def funcF(lst, j):
 
 
 def check(lst, i):
-    if (lst[0] == "add" or lst[0] == "sub" or lst[0] == "mul" or lst[0] == "xor" or lst[0] == "or" or lst[0] == "and"):
+    if (lst[0] == "add" or lst[0] == "sub" or lst[0] == "mul" or lst[0] == "xor" or lst[0] == "or" or lst[0] == "and" or lst[0]=="addf" or lst[0]=="subf"):
         funcA(lst, i)
-    elif (lst[0] == "mov" or lst[0] == "rs" or lst[0] == "ls"):
-        if (lst[2][0] == "mov"):
+    elif (lst[0] == "mov" or lst[0] == "rs" or lst[0] == "ls" or lst[0]=="movf"):
+        if (lst[0] == "mov"):
             temp_check = lst[2]
             if (temp_check[0] == "$"):
                 funcB(lst, i)
